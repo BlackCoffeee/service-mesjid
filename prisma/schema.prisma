@@ -12,3 +12,15 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           String    @id @default(cuid())
+  name         String    @db.VarChar(75)
+  username     String    @unique @db.VarChar(15)
+  password     String    @db.VarChar(255)
+  role         String    @default("user") @db.VarChar(10)
+  refreshToken String?   @db.Text
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+}
