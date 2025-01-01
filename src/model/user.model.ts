@@ -4,7 +4,7 @@ export class RegisterUserRequest {
     password: string;
 }
 
-export class RegisterUserResponse {
+export class UserResponse {
     name: string;
     username: string;
     role?: string;
