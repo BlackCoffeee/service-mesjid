@@ -10,3 +10,8 @@ export class RegisterUserResponse {
     role?: string;
     refreshToken?: string;
 }
+
+export class LoginUserRequest {
+    username: string;
+    password: string;
+}
