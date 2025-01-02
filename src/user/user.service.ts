@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { RegisterUserRequest, RegisterUserResponse } from '../model/user.model';
+import { RegisterUserRequest, UserResponse } from '../model/user.model';
 import { ValidationService } from '../common/validation.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -10,13 +10,14 @@ import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
     constructor(
-        private validationService: ValidationService,
         @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+        private validationService: ValidationService,
         private prismaService: PrismaService,
     ) {}
+
     async register(
         request: RegisterUserRequest,
-    ): Promise<RegisterUserResponse> {
+    ): Promise<UserResponse> {
         this.logger.info(`Registering user ${JSON.stringify(request)}`);
         const registerRequest: RegisterUserRequest =
             this.validationService.validate(UserValidation.REGISTER, request);
@@ -48,5 +49,22 @@ export class UserService {
             username: user.username,
             role: user.role,
         };
+    }
+
+    async findByUsername(username: string) {
+        return this.prismaService.user.findUnique({
+            where: { username }
+        });
+    }
+
+    async comparePassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+        return bcrypt.compare(plainPassword, hashedPassword);
+    }
+
+    async updateRefreshToken(userId: string, refreshToken: string) {
+        return this.prismaService.user.update({
+            where: { id: userId },
+            data: { refreshToken }
+        });
     }
 }
