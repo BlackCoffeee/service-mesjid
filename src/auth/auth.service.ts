@@ -1,35 +1,130 @@
 /**
- * Service untuk menangani autentikasi pengguna
- * File ini berisi logika untuk proses login dan pembuatan token JWT
+ * @fileoverview Service untuk menangani autentikasi pengguna dalam aplikasi.
+ * @module auth/auth.service
+ * @description
+ * File ini berisi implementasi logika autentikasi termasuk:
+ * - Proses login pengguna
+ * - Validasi kredensial
+ * - Pembuatan dan pengelolaan token JWT (access & refresh token)
+ * - Proses logout
+ * - Pembaruan refresh token
+ * 
+ * @author Muhammad Arif <https://github.com/BlackCoffeee>
+ * @created 2025-01-01
+ * @version 1.0.0
  */
-import { Injectable } from '@nestjs/common';
+
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from '../user/user.service';
+import { LoginUserRequest, UserResponse } from '../model/user.model';
+import { AuthenticationException } from '../common/exceptions/auth.exception';
+import { JWT_CONSTANTS } from './constants/auth.constant';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  /**
-   * Constructor untuk AuthService
-   * @param jwtService - Service untuk mengelola JWT token
-   */
-  constructor(private jwtService: JwtService) {}
+    /**
+     * Constructor untuk AuthService
+     * @param jwtService - Service untuk mengelola JWT token
+     * @param userService - Service untuk mengelola data pengguna
+     */
+    constructor(
+        private jwtService: JwtService,
+        private userService: UserService,
+    ) {}
 
-  /**
-   * Method untuk melakukan proses login pengguna
-   * @param user - Data pengguna yang akan diproses
-   * @returns Object yang berisi access token JWT
-   */
-  async login(user: any) {
-    // Membuat payload untuk JWT token
-    const payload = { username: user.username, sub: user.userId };
-    
-    // Mengembalikan access token yang sudah di-sign
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
-  }
-} 
+    private async validateUser(request: LoginUserRequest) {
+        const user = await this.userService.findByUsername(request.username);
+        if (!user) {
+            throw new AuthenticationException();
+        }
 
-// created by : Muhammad Arif https://github.com/BlackCoffeee
-// created at : 2025-01-01
-// updated by : .... https://github.com/....
-// updated at : ....
+        const isPasswordValid = await bcrypt.compare(
+            request.password,
+            user.password,
+        );
+        if (!isPasswordValid) {
+            throw new AuthenticationException();
+        }
+
+        return user;
+    }
+
+    private generateTokens(userId: string, username: string) {
+        const accessToken = this.jwtService.sign(
+            { sub: userId, username },
+            { expiresIn: JWT_CONSTANTS.ACCESS_TOKEN_EXPIRATION }
+        );
+
+        const refreshToken = this.jwtService.sign(
+            { sub: userId, username },
+            { expiresIn: JWT_CONSTANTS.REFRESH_TOKEN_EXPIRATION }
+        );
+
+        return { accessToken, refreshToken };
+    }
+
+    /**
+     * Method untuk melakukan proses login pengguna
+     * @param loginRequest - Data login pengguna
+     * @returns Object yang berisi access token JWT
+     */
+    async login(request: LoginUserRequest) {
+        const user = await this.validateUser(request);
+        const tokens = this.generateTokens(user.id, user.username);
+
+        // Simpan refresh token ke database
+        await this.userService.updateRefreshToken(user.id, tokens.refreshToken);
+
+        // Kirim response tanpa password
+        const userResponse: UserResponse = {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            role: user.role,
+            isActive: user.isActive
+        };
+
+        return {
+            access_token: tokens.accessToken,
+            refresh_token: tokens.refreshToken,
+            user: userResponse
+        };
+    }
+
+    async refreshToken(refreshToken: string) {
+        try {
+            const payload = this.jwtService.verify(refreshToken);
+            const user = await this.userService.findById(payload.sub);
+
+            if (!user || user.refreshToken !== refreshToken) {
+                throw new UnauthorizedException('Invalid refresh token');
+            }
+
+            const tokens = this.generateTokens(user.id, user.username);
+            
+            // Update refresh token di database
+            await this.userService.updateRefreshToken(user.id, tokens.refreshToken);
+
+            return {
+                access_token: tokens.accessToken,
+                refresh_token: tokens.refreshToken
+            };
+        } catch (error) {
+            throw new UnauthorizedException('Invalid or expired refresh token');
+        }
+    }
+
+    async logout(userId: string) {
+        await this.userService.updateRefreshToken(userId, null);
+        return { message: 'Logged out successfully' };
+    }
+}
+
+/**
+ * @copyright 2025 Muhammad Arif
+ * @created 2025-01-01 - Muhammad Arif <https://github.com/BlackCoffeee>
+ * @lastModified belum ada perubahan
+ * @lastModifiedBy belum ada perubahan
+ */
