@@ -3,25 +3,33 @@ import {
     Catch,
     ExceptionFilter,
     HttpException,
+    UnauthorizedException,
 } from '@nestjs/common';
 import { ZodError } from 'zod';
+import { AuthenticationException } from './exceptions/auth.exception';
 
 @Catch(ZodError, HttpException)
 export class ErrorFilter implements ExceptionFilter {
     catch(exception: any, host: ArgumentsHost) {
         const response = host.switchToHttp().getResponse();
 
+        if (exception instanceof AuthenticationException) {
+            return response.status(401).json({
+                statusCode: 401,
+                message: 'Username or password is wrong'
+            });
+        }
+
+        if (exception instanceof UnauthorizedException) {
+            return response.status(401).json({
+                statusCode: 401,
+                error: 'Unauthorized access',
+                message: 'You are not authorized to access this resource'
+            });
+        }
+
         if (exception instanceof HttpException) {
             const status = exception.getStatus();
-
-            // Handle unauthorized error (status 401)
-            if (status === 401) {
-                return response.status(401).json({
-                    error: 'Unauthorized access',
-                    message: 'You are not authorized to access this resource',
-                });
-            }
-
             response.status(status).json({
                 error: exception.getResponse(),
             });
