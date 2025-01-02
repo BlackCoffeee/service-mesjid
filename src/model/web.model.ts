@@ -1,4 +1,7 @@
 export class WebResponse<T> {
-    data?: T;
-    error?: string;
+    constructor(
+        public statusCode: number,
+        public message: string,
+        public data: T,
+    ) {}
 }
