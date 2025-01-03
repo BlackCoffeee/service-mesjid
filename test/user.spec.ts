@@ -38,7 +38,7 @@ describe('UserController', () => {
 
             expect(response.status).toEqual(HttpStatus.BAD_REQUEST);
             expect(response.body.error).toBeDefined();
-        }); 
+        });
 
         it('should be able to create a user', async () => {
             const userData = {
