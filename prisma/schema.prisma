@@ -18,9 +18,12 @@ model User {
   name         String    @db.VarChar(75)
   username     String    @unique @db.VarChar(15)
   password     String    @db.VarChar(255)
-  role         String    @default("user") @db.VarChar(10)
+  role         String    @default("superadmin") @db.VarChar(30)
   refreshToken String?   @db.Text
+  isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
+
+  @@map("users")
 }
