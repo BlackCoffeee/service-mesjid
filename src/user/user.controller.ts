@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserRequest, UserResponse } from '../model/user.model';
 import { WebResponse } from '../model/web.model';
@@ -14,8 +14,20 @@ export class UserController {
         const datas = await this.userService.getAllData();
         return new WebResponse<UserResponse[]>(
             HttpStatus.OK,
-            'User found',
+            'Users successfully retrieved',
             datas,
+        );
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get(':id')
+    async getById(@Param('id') id: string): Promise<WebResponse<UserResponse>> {
+        const { password, ...user } = await this.userService.findById(id);
+
+        return new WebResponse<UserResponse>(
+            HttpStatus.OK,
+            'User successfully retrieved',
+            user,
         );
     }
 

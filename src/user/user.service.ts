@@ -18,7 +18,7 @@ export class UserService {
     async getAllData(): Promise<UserResponse[]> {
         try {
             const users = await this.prismaService.user.findMany();
-            // Cek jika data kosong, throw exception dengan status NO_CONTENT
+            
             if (users.length === 0) {
                 this.logger.warn('userService.getAll: User not found');
                 throw new HttpException(
@@ -26,7 +26,9 @@ export class UserService {
                     HttpStatus.NO_CONTENT,
                 );
             }
-            return users;
+
+            return users.map(({ password, ...rest }) => rest) as UserResponse[];
+            
         } catch (error) {
             this.logger.error(`Error getting all data user: ${error}`);
             throw new HttpException(
@@ -92,9 +94,10 @@ export class UserService {
     }
 
     async findById(id: string): Promise<UserEntity> {
-        const user = await this.prismaService.user.findUnique({
-            where: { id }
-        });
+        try {
+            const user = await this.prismaService.user.findUnique({
+                where: { id }
+            });
         
         if (!user) {
             throw new HttpException(
@@ -102,7 +105,14 @@ export class UserService {
                 HttpStatus.NOT_FOUND
             );
         }
-        
-        return user;
+            
+            return user;
+        } catch (error) {
+            this.logger.error(`Error getting user by id: ${error}`);
+            throw new HttpException(
+                'Internal server error',
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
     }
 }
