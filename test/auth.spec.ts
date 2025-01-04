@@ -138,8 +138,9 @@ describe('AuthController', () => {
         });
 
         it('should reject access to protected route without token', async () => {
-            const response = await request(app.getHttpServer())
-                .get('/api/users');
+            const response = await request(app.getHttpServer()).get(
+                '/api/users',
+            );
 
             expect(response.status).toBe(HttpStatus.UNAUTHORIZED);
         });
@@ -152,7 +153,11 @@ describe('AuthController', () => {
             expect(response.status).toBe(HttpStatus.OK);
             expect(response.body.data).toBeDefined();
             expect(Array.isArray(response.body.data)).toBe(true);
-            expect(response.body.data.some(user => user.username === testUser.username)).toBe(true);
+            expect(
+                response.body.data.some(
+                    (user) => user.username === testUser.username,
+                ),
+            ).toBe(true);
         });
 
         it('should reject access with invalid token', async () => {

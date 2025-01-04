@@ -16,7 +16,7 @@ export class ErrorFilter implements ExceptionFilter {
         if (exception instanceof AuthenticationException) {
             return response.status(401).json({
                 statusCode: 401,
-                message: 'Username or password is wrong'
+                message: 'Username or password is wrong',
             });
         }
 
@@ -24,7 +24,7 @@ export class ErrorFilter implements ExceptionFilter {
             return response.status(401).json({
                 statusCode: 401,
                 error: 'Unauthorized access',
-                message: 'You are not authorized to access this resource'
+                message: 'You are not authorized to access this resource',
             });
         }
 

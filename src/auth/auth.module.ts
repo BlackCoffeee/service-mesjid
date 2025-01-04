@@ -12,8 +12,8 @@ import { JWT_CONSTANTS } from './constants/auth.constant';
         UserModule,
         JwtModule.register({
             secret: envConfig.jwt.secret,
-            signOptions: { 
-                expiresIn: JWT_CONSTANTS.ACCESS_TOKEN_EXPIRATION 
+            signOptions: {
+                expiresIn: JWT_CONSTANTS.ACCESS_TOKEN_EXPIRATION,
             },
         }),
     ],

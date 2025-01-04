@@ -5,12 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { AppConfigModule } from './config/config.module';
 
 @Module({
-    imports: [
-        AppConfigModule,
-        CommonModule,
-        UserModule,
-        AuthModule,
-    ],
+    imports: [AppConfigModule, CommonModule, UserModule, AuthModule],
     controllers: [],
     providers: [],
 })

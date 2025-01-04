@@ -1,6 +1,18 @@
-import { Body, Controller, Get, HttpStatus, Post, Param, Patch } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    HttpStatus,
+    Post,
+    Param,
+    Patch,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { PatchUserRequest, RegisterUserRequest, UserResponse } from '../model/user.model';
+import {
+    PatchUserRequest,
+    RegisterUserRequest,
+    UserResponse,
+} from '../model/user.model';
 import { WebResponse } from '../model/web.model';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';

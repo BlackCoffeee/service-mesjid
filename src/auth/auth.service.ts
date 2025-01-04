@@ -8,7 +8,7 @@
  * - Pembuatan dan pengelolaan token JWT (access & refresh token)
  * - Proses logout
  * - Pembaruan refresh token
- * 
+ *
  * @author Muhammad Arif <https://github.com/BlackCoffeee>
  * @created 2025-01-01
  * @version 1.0.0
@@ -54,12 +54,12 @@ export class AuthService {
     private generateTokens(userId: string, username: string) {
         const accessToken = this.jwtService.sign(
             { sub: userId, username },
-            { expiresIn: JWT_CONSTANTS.ACCESS_TOKEN_EXPIRATION }
+            { expiresIn: JWT_CONSTANTS.ACCESS_TOKEN_EXPIRATION },
         );
 
         const refreshToken = this.jwtService.sign(
             { sub: userId, username },
-            { expiresIn: JWT_CONSTANTS.REFRESH_TOKEN_EXPIRATION }
+            { expiresIn: JWT_CONSTANTS.REFRESH_TOKEN_EXPIRATION },
         );
 
         return { accessToken, refreshToken };
@@ -83,13 +83,13 @@ export class AuthService {
             name: user.name,
             username: user.username,
             role: user.role,
-            isActive: user.isActive
+            isActive: user.isActive,
         };
 
         return {
             access_token: tokens.accessToken,
             refresh_token: tokens.refreshToken,
-            user: userResponse
+            user: userResponse,
         };
     }
 
@@ -103,13 +103,16 @@ export class AuthService {
             }
 
             const tokens = this.generateTokens(user.id, user.username);
-            
+
             // Update refresh token di database
-            await this.userService.updateRefreshToken(user.id, tokens.refreshToken);
+            await this.userService.updateRefreshToken(
+                user.id,
+                tokens.refreshToken,
+            );
 
             return {
                 access_token: tokens.accessToken,
-                refresh_token: tokens.refreshToken
+                refresh_token: tokens.refreshToken,
             };
         } catch (error) {
             throw new UnauthorizedException('Invalid or expired refresh token');
