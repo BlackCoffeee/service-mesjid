@@ -4,7 +4,7 @@
  * @description
  * File ini berisi definisi tipe data untuk:
  * - Response data pengguna ke client (UserResponse)
- * - Entitas pengguna internal dengan password (UserEntity) 
+ * - Entitas pengguna internal dengan password (UserEntity)
  * - Request registrasi pengguna baru (RegisterUserRequest)
  * - Request login pengguna (LoginUserRequest)
  *
@@ -19,7 +19,7 @@
  */
 export class UserResponse {
     id: string;
-    name: string; 
+    name: string;
     username: string;
     role?: string;
     refreshToken?: string;
@@ -60,5 +60,12 @@ export class PatchUserRequest {
     password?: string;
     role?: string;
     isActive?: boolean;
+}
 
+export class PutUserRequest {
+    name: string;
+    username: string;
+    password?: string;
+    role?: string;
+    isActive?: boolean;
 }
