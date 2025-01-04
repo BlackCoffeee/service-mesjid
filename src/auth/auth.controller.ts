@@ -23,9 +23,10 @@ import {
     Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserRequest } from '../model/user.model';
+import { LoginUserRequest, UserResponse } from '../model/user.model';
 import { WebResponse } from '../model/web.model';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -78,6 +79,18 @@ export class AuthController {
             HttpStatus.OK,
             'Logged out successfully',
             null,
+        );
+    }
+
+    @Post('register')
+    async register(
+        @Body() request: RegisterDto,
+    ): Promise<WebResponse<UserResponse>> {
+        const result = await this.authService.register(request);
+        return new WebResponse<UserResponse>(
+            HttpStatus.CREATED,
+            'User created successfully',
+            result,
         );
     }
 }

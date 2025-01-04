@@ -14,14 +14,18 @@
  * @version 1.0.0
  */
 
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginUserRequest, UserResponse } from '../model/user.model';
+import { LoginUserRequest, RegisterUserRequest, UserResponse } from '../model/user.model';
 import { AuthenticationException } from '../common/exceptions/auth.exception';
 import { JWT_CONSTANTS } from './constants/auth.constant';
 import * as bcrypt from 'bcrypt';
-
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
+import { ValidationService } from 'src/common/validation.service';
+import { PrismaService } from 'src/common/prisma.service';
+import { AuthValidation } from './auth.validation';
 @Injectable()
 export class AuthService {
     /**
@@ -32,6 +36,9 @@ export class AuthService {
     constructor(
         private jwtService: JwtService,
         private userService: UserService,
+        private validationService: ValidationService,
+        private prismaService: PrismaService,
+        @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
     ) {}
 
     private async validateUser(request: LoginUserRequest) {
@@ -122,6 +129,42 @@ export class AuthService {
     async logout(userId: string) {
         await this.userService.updateRefreshToken(userId, null);
         return { message: 'Logged out successfully' };
+    }
+
+
+    async register(request: RegisterUserRequest): Promise<UserResponse> {
+        this.logger.info(`Registering user ${JSON.stringify(request)}`);
+        const registerRequest: RegisterUserRequest =
+            this.validationService.validate(AuthValidation.REGISTER, request);
+
+        const totalUserWithSameUsername = await this.prismaService.user.count({
+            where: {
+                username: registerRequest.username,
+            },
+        });
+
+        if (totalUserWithSameUsername != 0) {
+            throw new HttpException(
+                `Username is already exists`,
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+
+        registerRequest.password = await bcrypt.hash(
+            registerRequest.password,
+            10,
+        );
+
+        const user = await this.prismaService.user.create({
+            data: registerRequest,
+        });
+
+        return {
+            id: user.id,
+            name: user.name,
+            username: user.username,
+            role: user.role,
+        };
     }
 }
 
