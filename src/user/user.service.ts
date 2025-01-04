@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { RegisterUserRequest, UserResponse, UserEntity } from '../model/user.model';
+import { RegisterUserRequest, UserResponse, UserEntity, PatchUserRequest } from '../model/user.model';
 import { ValidationService } from '../common/validation.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
@@ -99,16 +99,74 @@ export class UserService {
                 where: { id }
             });
         
-        if (!user) {
-            throw new HttpException(
-                'User not found',
-                HttpStatus.NOT_FOUND
-            );
-        }
+            if (!user) {
+                this.logger.warn(`User with id ${id} not found`);
+                throw new HttpException({
+                    statusCode: HttpStatus.NOT_FOUND,
+                    message: 'User not found'
+                }, HttpStatus.NOT_FOUND);
+            }
             
             return user;
         } catch (error) {
+            // Jika error adalah HttpException, teruskan
+            if (error instanceof HttpException) {
+                throw error;
+            }
+
             this.logger.error(`Error getting user by id: ${error}`);
+            throw new HttpException(
+                {
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR, 
+                    message: 'Internal server error'
+                },
+                HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    async patchUser(id: string, request: PatchUserRequest): Promise<UserResponse> {
+        try {
+            // Validasi request
+            const patchRequest: PatchUserRequest = this.validationService.validate(
+                UserValidation.PATCH,
+                request
+            );
+
+            // Hash password jika ada dalam request
+            if (patchRequest.password) {
+                const hashedPassword = await bcrypt.hash(patchRequest.password, 10);
+                patchRequest.password = hashedPassword;
+            }
+
+            try {
+                await this.findById(id);
+            } catch (error) {
+                if (error instanceof HttpException) {
+                    throw error;
+                }
+                throw new HttpException(
+                    'Internal server error',
+                    HttpStatus.INTERNAL_SERVER_ERROR
+                );
+            }
+
+            // Update user
+            const updatedUser = await this.prismaService.user.update({
+                where: { id },
+                data: patchRequest
+            });
+
+            // Return response tanpa password
+            const { password, refreshToken, ...userResponse } = updatedUser;
+            return userResponse;
+
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            
+            this.logger.error(`Error patching user: ${error}`);
             throw new HttpException(
                 'Internal server error',
                 HttpStatus.INTERNAL_SERVER_ERROR

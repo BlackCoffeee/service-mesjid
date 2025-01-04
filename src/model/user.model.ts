@@ -53,3 +53,12 @@ export class LoginUserRequest {
     username: string;
     password: string;
 }
+
+export class PatchUserRequest {
+    name?: string;
+    username?: string;
+    password?: string;
+    role?: string;
+    isActive?: boolean;
+
+}
