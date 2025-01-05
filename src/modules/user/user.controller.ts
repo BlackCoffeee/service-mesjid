@@ -14,8 +14,8 @@ import {
     PatchUserRequest,
     PutUserRequest,
     UserResponse,
-} from '../model/user.model';
-import { WebResponse } from '../model/web.model';
+} from '../../model/user.model';
+import { WebResponse } from '../../model/web.model';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.dto';

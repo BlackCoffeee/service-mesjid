@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { AuthController } from './auth.controller';
 import { UserModule } from '../user/user.module';
-import { envConfig } from '../config/env.config';
+import { envConfig } from '../../config/env.config';
 import { JWT_CONSTANTS } from './constants/auth.constant';
 
 @Module({

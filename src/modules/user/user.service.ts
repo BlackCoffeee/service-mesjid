@@ -4,11 +4,11 @@ import {
     UserEntity,
     PatchUserRequest,
     PutUserRequest,
-} from '../model/user.model';
-import { ValidationService } from '../common/validation.service';
+} from '../../model/user.model';
+import { ValidationService } from '../../common/validation.service';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { PrismaService } from '../common/prisma.service';
+import { PrismaService } from '../../common/prisma.service';
 import { UserValidation } from './user.validation';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create.dto';

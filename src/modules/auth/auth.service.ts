@@ -17,8 +17,8 @@
 import { HttpException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginUserRequest, RegisterUserRequest, UserResponse } from '../model/user.model';
-import { AuthenticationException } from '../common/exceptions/auth.exception';
+import { LoginUserRequest, RegisterUserRequest, UserResponse } from '../../model/user.model';
+import { AuthenticationException } from '../../common/exceptions/auth.exception';
 import { JWT_CONSTANTS } from './constants/auth.constant';
 import * as bcrypt from 'bcrypt';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';

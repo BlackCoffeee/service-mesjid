@@ -23,8 +23,8 @@ import {
     Request,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginUserRequest, UserResponse } from '../model/user.model';
-import { WebResponse } from '../model/web.model';
+import { LoginUserRequest, UserResponse } from '../../model/user.model';
+import { WebResponse } from '../../model/web.model';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RegisterDto } from './dto/register.dto';
 
