@@ -1,5 +1,6 @@
 import { MosqueStatus, MosqueType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
+import { MosqueQueryOptions } from "./mosque-query-options.interface";
 
 export interface InterfaceMosque {
     id: string;
@@ -27,17 +28,19 @@ export interface InterfaceMosque {
 }
 
 export interface InterfaceMosqueService {
-    create(data: Omit<InterfaceMosque, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<InterfaceMosque>;
-    findAll(): Promise<InterfaceMosque[]>;
-    findOne(id: string): Promise<InterfaceMosque>;
-    update(id: string, data: Partial<InterfaceMosque>): Promise<InterfaceMosque>;
-    remove(id: string): Promise<InterfaceMosque>;
-  }
+    create(data: Omit<InterfaceMosque, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    findAll(options?: MosqueQueryOptions): Promise<InterfaceMosque[]>;
+    findOne(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    update(id: string, data: Partial<InterfaceMosque>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    softDelete(id: string, options?: MosqueQueryOptions): Promise<void>;
+    restore(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+}
   
-  export interface InterfaceMosqueRepository {
-    create(data: Omit<InterfaceMosque, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>): Promise<InterfaceMosque>;
-    findAll(): Promise<InterfaceMosque[]>;
-    findOne(id: string): Promise<InterfaceMosque | null>;
-    update(id: string, data: Partial<InterfaceMosque>): Promise<InterfaceMosque>;
-    remove(id: string): Promise<InterfaceMosque>;
+export interface InterfaceMosqueRepository {
+    create(data: Omit<InterfaceMosque, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    findAll(options?: MosqueQueryOptions): Promise<InterfaceMosque[]>;
+    findOne(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque | null>;
+    update(id: string, data: Partial<InterfaceMosque>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    softDelete(id: string, options?: MosqueQueryOptions): Promise<void>;
+    restore(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
 }
