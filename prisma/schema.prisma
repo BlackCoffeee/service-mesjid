@@ -24,6 +24,48 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
+  mosque       Mosque[]
 
   @@map("users")
+}
+
+enum MosqueType {
+  GRAND_MOSQUE
+  JAMI_MOSQUE
+  PRAYER_ROOM
+}
+
+enum MosqueStatus {
+  ACTIVE
+  RENOVATION
+  INACTIVE
+}
+
+model Mosque {
+  id                String       @id @default(cuid())
+  name              String       @db.VarChar(100)
+  codeName          String       @unique @db.VarChar(30)
+  address           String       @db.VarChar(255)
+  village           String       @db.VarChar(100)
+  district          String       @db.VarChar(100)
+  city              String       @db.VarChar(100)
+  province          String       @db.VarChar(100)
+  postalCode        String       @db.VarChar(10)
+  latitude          Decimal?     @db.Decimal(10, 7)
+  longitude         Decimal?     @db.Decimal(10, 7)
+  establishmentDate DateTime?
+  phone             String?      @db.VarChar(15)
+  email             String?      @db.VarChar(100)
+  website           String?      @db.VarChar(100)
+  description       String?      @db.Text
+  status            MosqueStatus @default(ACTIVE)
+  type              MosqueType
+  createdBy         String
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  deletedAt         DateTime?
+
+  user User @relation(fields: [createdBy], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@map("mosques")
 }
