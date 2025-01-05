@@ -1,9 +1,10 @@
 import { MosqueStatus, MosqueType } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 import { MosqueQueryOptions } from "./mosque-query-options.interface";
+import { UpdateMosqueDto, PatchMosqueDto } from "@modules/mosque/mosque/dto";
 
 export interface InterfaceMosque {
-    id: string;
+  id: string;
   name: string;
   codeName: string;
   address: string;
@@ -34,6 +35,8 @@ export interface InterfaceMosqueService {
     update(id: string, data: Partial<InterfaceMosque>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
     softDelete(id: string, options?: MosqueQueryOptions): Promise<void>;
     restore(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    replace(id: string, data: UpdateMosqueDto): Promise<InterfaceMosque>;
+    patch(id: string, data: PatchMosqueDto): Promise<InterfaceMosque>;
 }
   
 export interface InterfaceMosqueRepository {
@@ -43,4 +46,6 @@ export interface InterfaceMosqueRepository {
     update(id: string, data: Partial<InterfaceMosque>, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
     softDelete(id: string, options?: MosqueQueryOptions): Promise<void>;
     restore(id: string, options?: MosqueQueryOptions): Promise<InterfaceMosque>;
+    replace(id: string, data: InterfaceMosque): Promise<InterfaceMosque>;
+    patch(id: string, data: Partial<InterfaceMosque>): Promise<InterfaceMosque>;
 }
